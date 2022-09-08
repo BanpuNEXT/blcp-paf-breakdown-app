@@ -1,0 +1,30 @@
+{
+    "start_training_date": "2022-03-31 17:00:00",
+    "device_name": [
+        "PAF_1A",
+        "PAF_1B",
+        "PAF_2A",
+        "PAF_2B"
+    ],
+    "feature": {
+        "vibration_nde_um": {
+            "error_direction": "upper"
+        },
+        "vibration_de_um": {
+            "error_direction": "upper"
+        },
+        "diff_nde_temp_degc": {
+            "error_direction": "upper"
+        },
+        "diff_de_temp_degc": {
+            "error_direction": "upper"
+        }
+    },
+    "n_training_day": 90,
+    "n_test_day": 60,
+    "minute_interval": 5,
+    "n_look_back_day": 1,
+    "low_generation_threshold": 690,
+    "rolling_error_days": 30,
+    "error_ratio_threshold": 0.3
+}
