@@ -89,8 +89,8 @@ Return series of raw input and error ratio along with config values.
 }
 ```
 ### Visualisation
-Print status_message of each deviceId and feature.
- - Plot series of raw_data and publishTimestamp.
- - Plot series of error_ratio and publishTimestamp with error_ratio_threshold as baseline horizontal.
+Plot 2 charts.
+ - Series of raw_data and publishTimestamp.
+ - Series of error_ratio and publishTimestamp with error_ratio_threshold as baseline horizontal.
 
 Example plot in /sample_output/error_ratio.
