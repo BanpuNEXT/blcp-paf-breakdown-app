@@ -2,7 +2,7 @@ from flask import Flask, request
 import pymongo
 from werkzeug.local import LocalProxy
 import pandas as pd
-import datetime as dt
+from bson.objectid import ObjectId
 import json
 import os
 import sys
@@ -60,7 +60,7 @@ def get_db():
     return db
 
 
-def get_error_ratio_args():
+def get_args():
     '''
     GET device_id and feature argement.
     '''
@@ -158,27 +158,27 @@ def send_error(error):
     return error_dict
 
 
-@app.route('/nixt-ml/healthz')
+@app.route('/healthz')
 def health():
     '''
     Get sample data to check database connection.
     Fix parameter as following
-        - site_id: DON BOSCO INSTITUTE (B1084)
-        - start: 2021/12/01
-        - end: current + 15 minutes
+        - device_id: for PAF_1A
+        - start_date, end_date: latest 90 days on database
     '''
     start_time = time.time()
+    
     db = get_db()
+    device_id = ObjectId('62ff07274adcc50b51965f96')
+    start_date, end_date = func_data.get_predict_date(db)
+    print(start_date, end_date)
     
-    site_id = '614d53ac91e9456fb1c1688c'
-    end = dt.datetime(2021, 12, 1)
-    start = end - dt.timedelta(minutes=15)
-    
-    _ = func_data.get_input(db, site_id, start, end)
+    query = func_data.get_query(device_id, start_date, end_date)
+    func_data.load_data(query, db)
     
     process_time = get_process_time(start_time)
     
-    if process_time < 2000:
+    if process_time < 5000:
         health_dict = {
             'code': 200,
             'message': 'Everything is OK'
@@ -278,7 +278,7 @@ def predict_error_ratio():
     
     config_dict, meta_dict = get_config_meta_dict()
     db = get_db()
-    device_id, feature = get_error_ratio_args()
+    device_id, feature = get_args()
     device_name = func_data.get_device_name(device_id)
     start_date, end_date = func_data.get_predict_date(db)
     
