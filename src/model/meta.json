@@ -1,68 +1,68 @@
 {
     "model": {
         "PAF_1A_vibration_nde_um": {
-            "error_threshold": 0.22609626128441343,
-            "training_timestamp": "2022-09-07 16:00:22.181204"
+            "error_threshold": 0.20572150491852598,
+            "training_timestamp": "2022-10-18 15:08:45.364390"
         },
         "PAF_1A_vibration_de_um": {
-            "error_threshold": 0.1775249979792748,
-            "training_timestamp": "2022-09-07 16:00:33.945340"
+            "error_threshold": 0.14539391595842538,
+            "training_timestamp": "2022-10-18 15:09:08.088733"
         },
         "PAF_1A_diff_nde_temp_degc": {
-            "error_threshold": 0.4759554312375838,
-            "training_timestamp": "2022-09-07 16:00:50.718976"
+            "error_threshold": 0.26247892897747443,
+            "training_timestamp": "2022-10-18 15:09:26.114145"
         },
         "PAF_1A_diff_de_temp_degc": {
-            "error_threshold": 0.38635623098205873,
-            "training_timestamp": "2022-09-07 16:01:02.353727"
+            "error_threshold": 0.2895093188576962,
+            "training_timestamp": "2022-10-18 15:09:41.903950"
         },
         "PAF_1B_vibration_nde_um": {
-            "error_threshold": 0.19427667451450323,
-            "training_timestamp": "2022-09-07 16:01:13.473501"
+            "error_threshold": 0.19408465149055618,
+            "training_timestamp": "2022-10-18 15:09:51.804654"
         },
         "PAF_1B_vibration_de_um": {
-            "error_threshold": 0.1853478063664947,
-            "training_timestamp": "2022-09-07 16:01:24.314899"
+            "error_threshold": 0.16340418836214057,
+            "training_timestamp": "2022-10-18 15:10:01.442074"
         },
         "PAF_1B_diff_nde_temp_degc": {
-            "error_threshold": 0.22785614518397956,
-            "training_timestamp": "2022-09-07 16:01:35.103377"
+            "error_threshold": 0.21256486898878246,
+            "training_timestamp": "2022-10-18 15:10:18.896964"
         },
         "PAF_1B_diff_de_temp_degc": {
-            "error_threshold": 0.2400896060471761,
-            "training_timestamp": "2022-09-07 16:01:46.222581"
+            "error_threshold": 0.21694671906238444,
+            "training_timestamp": "2022-10-18 15:10:28.658405"
         },
         "PAF_2A_vibration_nde_um": {
-            "error_threshold": 0.25753267596020163,
-            "training_timestamp": "2022-09-07 16:01:58.167167"
+            "error_threshold": 0.2520080305631878,
+            "training_timestamp": "2022-10-18 15:10:39.398766"
         },
         "PAF_2A_vibration_de_um": {
-            "error_threshold": 0.5907124663401098,
-            "training_timestamp": "2022-09-07 16:02:16.579967"
+            "error_threshold": 0.3028911028068231,
+            "training_timestamp": "2022-10-18 15:10:58.642084"
         },
         "PAF_2A_diff_nde_temp_degc": {
-            "error_threshold": 0.3353558239459067,
-            "training_timestamp": "2022-09-07 16:02:37.288541"
+            "error_threshold": 0.4275259268876989,
+            "training_timestamp": "2022-10-18 15:11:12.554011"
         },
         "PAF_2A_diff_de_temp_degc": {
-            "error_threshold": 0.39209480586906054,
-            "training_timestamp": "2022-09-07 16:02:50.265506"
+            "error_threshold": 0.2692637945437466,
+            "training_timestamp": "2022-10-18 15:11:26.628989"
         },
         "PAF_2B_vibration_nde_um": {
-            "error_threshold": 0.213044347275353,
-            "training_timestamp": "2022-09-07 16:11:15.537987"
+            "error_threshold": 0.2134721886923423,
+            "training_timestamp": "2022-10-18 15:11:36.464211"
         },
         "PAF_2B_vibration_de_um": {
-            "error_threshold": 0.2508864045115782,
-            "training_timestamp": "2022-09-07 16:03:12.457232"
+            "error_threshold": 0.2392168839615602,
+            "training_timestamp": "2022-10-18 15:11:46.675322"
         },
         "PAF_2B_diff_nde_temp_degc": {
-            "error_threshold": 0.27317720475152274,
-            "training_timestamp": "2022-09-07 16:03:24.571488"
+            "error_threshold": 0.23034041826038484,
+            "training_timestamp": "2022-10-18 15:12:07.016252"
         },
         "PAF_2B_diff_de_temp_degc": {
-            "error_threshold": 0.2505208305716613,
-            "training_timestamp": "2022-09-07 16:03:39.394847"
+            "error_threshold": 0.22501119027755434,
+            "training_timestamp": "2022-10-18 15:12:17.194590"
         }
     }
 }

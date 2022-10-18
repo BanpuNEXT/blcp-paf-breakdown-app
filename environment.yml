@@ -1,0 +1,21 @@
+name: blcp-paf-breakdown
+channels:
+  - conda-forge
+  - apple
+dependencies:
+  - python=3.10.6
+  - numpy==1.23.2
+  - pandas==1.5.0
+  - matplotlib==3.6.1
+  - flask==2.2.2
+  - werkzeug==2.2.2
+  - scikit-learn==1.1.2
+  - joblib==1.2.0
+  - tensorflow-deps
+  - jupyter
+  - pip
+  - pip:
+    - flask_pymongo==2.3.0
+    - pymongo[srv]==4.2.0
+    - tensorflow-macos==2.10.0
+    - tensorflow-metal==0.6.0

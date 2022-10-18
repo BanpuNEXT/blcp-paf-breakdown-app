@@ -118,7 +118,6 @@ def gen_output_format(output_data, process_time):
     return output_dict
 
 
-
 @app.errorhandler(400)
 def send_error(error):
     '''
@@ -266,7 +265,6 @@ def predict_status():
     print("   Done\n")
 
     return output_dict
-
 
 
 @app.route('/predict/paf/error_ratio')
