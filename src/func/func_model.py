@@ -61,18 +61,19 @@ def create_model_meta(error_threshold, model_path, device_name, feature):
     '''
     with open(f'{model_path}/meta.json') as meta_file:
         meta_dict = json.load(meta_file)
-
     
     timestamp_str = str(dt.datetime.now())
 
     if f'{device_name}_{feature}' not in meta_dict['model']:
         meta_dict['model'][f'{device_name}_{feature}'] = {
-            'error_threshold': 0,
-            'training_timestamp':0
+            'error_threshold': None,
+            'training_timestamp':None,
+            'detected_timestamp': None
         }
 
     meta_dict['model'][f'{device_name}_{feature}']['error_threshold'] = error_threshold
     meta_dict['model'][f'{device_name}_{feature}']['training_timestamp'] = timestamp_str
+    meta_dict['model'][f'{device_name}_{feature}']['detected_timestamp'] = None
 
     with open(f'{model_path}/meta.json', 'w') as meta_file:
         json.dump(meta_dict, meta_file, indent=4)

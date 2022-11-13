@@ -12,6 +12,7 @@ def plot_training_data(training_df, test_df, feature, split_date):
     plt.figure(figsize=(20, 8))
     plt.plot(plt_df.index, plt_df[feature])
     plt.axvspan(training_df.index[0], split_date, color='grey', alpha=0.2)
+    plt.xlim(min(training_df.index), max(training_df.index))
     plt.title('Raw data')
     plt.show()
 
@@ -22,6 +23,7 @@ def plot_predict_data(pred_df, feature):
     '''
     plt.figure(figsize=(20, 8))
     plt.plot(pred_df.index, pred_df[feature])
+    plt.xlim(min(pred_df.index), max(pred_df.index))
     plt.title('Raw data')
     plt.show()
 
@@ -82,6 +84,8 @@ def plot_error_trend(detection_df, error_threshold, split_date=None):
     if split_date != None:
         plt.axvspan(detection_df['publishTimestamp'][0], split_date, color='grey', alpha=0.2)
     
+    plt.xlim(min(detection_df['publishTimestamp']), max(detection_df['publishTimestamp']))
+    plt.ylim(bottom=0)
     plt.title("Error trend")
 
 
@@ -96,13 +100,7 @@ def plot_error_ratio(detection_df, error_ratio_threshold, split_date=None):
 
     if split_date != None:
         plt.axvspan(detection_df['publishTimestamp'][0], split_date, color='grey', alpha=0.2)
-    
+
+    plt.xlim(min(detection_df['publishTimestamp']), max(detection_df['publishTimestamp']))
+    plt.ylim(0, 1)
     plt.title("Error ratio")
-
-
-def print_cross_result(cross_list):
-    '''
-    Print all detected timestamp of a feature of a device.
-    '''
-    for deteced_timestamp in cross_list:
-        print(f"Detected timestamp {deteced_timestamp}")

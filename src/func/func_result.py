@@ -1,4 +1,5 @@
 import pandas as pd
+import json
 from flask import abort
 
 
@@ -49,7 +50,7 @@ def get_error_ratio(df, rolling_interval, error_threshold, error_ratio_threshold
     except ZeroDivisionError:
         abort(422, description=f"rolling_error_days in configuration file must not be 0.")
 
-    df = df.fillna(0)
+    # df = df.dropna()
     df['error_ratio_shift'] = df['error_ratio'].shift()
     df['cross_flag'] = df.apply(add_cross_ratio_flag, error_ratio_threshold=error_ratio_threshold, axis=1)
 
@@ -108,7 +109,7 @@ def gen_status_dict():
 
 def get_cross_timestamp(detection_df):
     '''
-    Record all detected timestamp of a feature of a device.
+    Get all detected timestamp of a feature of a device.
     '''
     cross_df = detection_df[detection_df['cross_flag'] == 1].reset_index(drop=True)
     cross_list = []
@@ -119,17 +120,47 @@ def get_cross_timestamp(detection_df):
     return cross_list
 
 
-def add_status_result(status_dict, detection_df, device_id, feature, error_ratio_threshold):
+def update_detected_timestamp(detection_df, model_path, device_name, feature, error_ratio_threshold):
+    '''
+    Update detected timestamp in model meta json.
+    '''
+    with open(f'{model_path}/meta.json') as meta_file:
+        meta_dict = json.load(meta_file)
+
+    error_flag = get_error_flag(detection_df, error_ratio_threshold)
+    
+    if not error_flag:
+        meta_dict['model'][f'{device_name}_{feature}']['detected_timestamp'] = None
+    else:
+        cross_list = get_cross_timestamp(detection_df)
+
+        if len(cross_list) > 0:
+            # Record lastest cross as detected timestamp.
+            # If no cross, error occur during past detection. Use the timestamp on model meta json.
+            meta_dict['model'][f'{device_name}_{feature}']['detected_timestamp'] = str(cross_list[-1])
+            
+    with open(f'{model_path}/meta.json', 'w') as meta_file:
+        json.dump(meta_dict, meta_file, indent=4)
+
+    return meta_dict
+
+
+def get_status_message(meta_dict, device_name, feature):
+    detected_timestamp = meta_dict['model'][f'{device_name}_{feature}']['detected_timestamp']
+    
+    if detected_timestamp == None:
+        status_message = "Normal"
+    else:
+        status_message = f"Detected timestamp: {detected_timestamp}"
+
+    return status_message
+
+
+def add_status_result(status_dict, meta_dict, device_name, device_id, feature):
     '''
     Add latest status of each feature of each device to status_dict in route predict_status.
     '''
-    error_flag = get_error_flag(detection_df, error_ratio_threshold)
-
-    if error_flag:
-        cross_list = get_cross_timestamp(detection_df)
-        status_message = f"Detected timestamp: {cross_list[-1]}"
-    else:
-        status_message = "Normal"
+    status_message = get_status_message(meta_dict, device_name, feature)
 
     status_dict['deviceId'].append(str(device_id))
     status_dict['feature'].append(feature)
