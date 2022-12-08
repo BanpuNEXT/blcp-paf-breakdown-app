@@ -17,7 +17,7 @@ pip3 install -r requirements.txt
 ```
 cd src/
 export FLASK_APP=app
-export FLASK_ENV=prod
+export FLASK_DEBUG=0
 flask run
 ```
 
@@ -68,6 +68,7 @@ Return series of raw input and error ratio along with config values.
 ```json
 {
     "data": {
+        "status_message": "string",
         "error_ratio": [
             {
                 "publishTimestamp": "ISODate",

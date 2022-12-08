@@ -23,7 +23,7 @@
         "PAF_1B_vibration_nde_um": {
             "error_threshold": 0.19408465149055618,
             "training_timestamp": "2022-10-18 15:09:51.804654",
-            "detected_timestamp": null
+            "detected_timestamp": "2022-11-15 03:15:00"
         },
         "PAF_1B_vibration_de_um": {
             "error_threshold": 0.16340418836214057,
