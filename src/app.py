@@ -82,15 +82,19 @@ def generate_status_output(status_dict):
     return output_data
 
 
-def generate_error_ratio_dict(status_message, output_df, error_ratio_threshold):
+def generate_error_ratio_dict(status_message, detected_timestamp, output_df, error_ratio_threshold):
     '''
     Reshape error_ratio dataFrame output into array dict.
     '''
     output_data = {
-        'status': status_message,
-        'error_ratio': output_df.to_dict('records'),
-        'error_ratio_threshold': error_ratio_threshold
-        }
+        'status': status_message
+    }
+
+    if detected_timestamp != None:
+        output_data['detected_timestamp'] = detected_timestamp
+    
+    output_data['error_ratio'] = output_df.to_dict('records')
+    output_data['error_ratio_threshold'] = error_ratio_threshold
 
     return output_data
 
@@ -315,12 +319,12 @@ def predict_error_ratio():
         db
         )
 
-    status_message = func_result.get_status_message(meta_dict, device_name, feature)
+    status_message, detected_timestamp = func_result.get_status_message(meta_dict, device_name, feature)
 
     print("   Generate final output\n")            
     output_df = func_result.clean_output(detection_df, input_df, feature)
 
-    output_data = generate_error_ratio_dict(status_message, output_df, config_dict['error_ratio_threshold'])
+    output_data = generate_error_ratio_dict(status_message, detected_timestamp, output_df, config_dict['error_ratio_threshold'])
     process_time = get_process_time(start_time)
     output_dict = gen_output_format(output_data, process_time)
 

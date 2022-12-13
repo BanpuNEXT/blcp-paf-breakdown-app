@@ -101,7 +101,8 @@ def gen_status_dict():
     status_dict = {
         'deviceId': [],
         'feature': [],
-        'status_message': []
+        'status': [],
+        'detected_timestamp': []
     }
 
     return status_dict
@@ -149,22 +150,23 @@ def get_status_message(meta_dict, device_name, feature):
     detected_timestamp = meta_dict['model'][f'{device_name}_{feature}']['detected_timestamp']
     
     if detected_timestamp == None:
-        status_message = "Normal"
+        status_message = "normal"
     else:
-        status_message = f"Detected timestamp: {detected_timestamp}"
+        status_message = "detect"
 
-    return status_message
+    return status_message, detected_timestamp
 
 
 def add_status_result(status_dict, meta_dict, device_name, device_id, feature):
     '''
     Add latest status of each feature of each device to status_dict in route predict_status.
     '''
-    status_message = get_status_message(meta_dict, device_name, feature)
+    status_message, detected_timestamp = get_status_message(meta_dict, device_name, feature)
 
     status_dict['deviceId'].append(str(device_id))
     status_dict['feature'].append(feature)
-    status_dict['status_message'].append(status_message)
+    status_dict['status'].append(status_message)
+    status_dict['detected_timestamp'].append(detected_timestamp)
 
     return status_dict
 
