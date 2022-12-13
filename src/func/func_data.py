@@ -127,8 +127,8 @@ def add_additional_feature(df):
     '''
     Add diff_temp_degc from device temp - ambient temp.
     '''
-    df['diff_nde_temp_degc'] = df['temp_nde_degc'] - df['amb_temp_degc']
-    df['diff_de_temp_degc'] = df['temp_de_degc'] - df['amb_temp_degc']
+    df['diff_temp_nde_degc'] = df['temp_nde_degc'] - df['amb_temp_degc']
+    df['diff_temp_de_degc'] = df['temp_de_degc'] - df['amb_temp_degc']
     
     df = df.drop(columns=[
         'amb_temp_degc',

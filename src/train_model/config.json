@@ -13,10 +13,10 @@
         "vibration_de_um": {
             "error_direction": "upper"
         },
-        "diff_nde_temp_degc": {
+        "diff_temp_nde_degc": {
             "error_direction": "upper"
         },
-        "diff_de_temp_degc": {
+        "diff_temp_de_degc": {
             "error_direction": "upper"
         }
     },
