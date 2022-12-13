@@ -37,12 +37,14 @@ Return latest breakdown status of all devices and features.
             {
                 "deviceId": "ObjectId",
                 "feature": "string",
-                "status_message": "string"
+                "status": "string",
+                "detected_timestamp": "string"
             },
             {
                 "deviceId": "ObjectId",
                 "feature": "string",
-                "status_message": "string"
+                "status": "string",
+                "detected_timestamp": "string"
             }
         ]
     }
@@ -68,7 +70,8 @@ Return series of raw input and error ratio along with config values.
 ```json
 {
     "data": {
-        "status_message": "string",
+        "status": "string",
+        "detected_timestamp": "string",
         "error_ratio": [
             {
                 "publishTimestamp": "ISODate",
