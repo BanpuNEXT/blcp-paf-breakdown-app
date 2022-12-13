@@ -82,14 +82,14 @@ def generate_status_output(status_dict):
     return output_data
 
 
-def generate_error_ratio_dict(status_message, output_df, config_value_list):
+def generate_error_ratio_dict(status_message, output_df, error_ratio_threshold):
     '''
     Reshape error_ratio dataFrame output into array dict.
     '''
     output_data = {
         'status': status_message,
         'error_ratio': output_df.to_dict('records'),
-        'config_value': config_value_list
+        'error_ratio_threshold': error_ratio_threshold
         }
 
     return output_data
@@ -320,10 +320,7 @@ def predict_error_ratio():
     print("   Generate final output\n")            
     output_df = func_result.clean_output(detection_df, input_df, feature)
 
-    config_value_list = [{
-        'error_ratio_threshold':config_dict['error_ratio_threshold']
-        }]
-    output_data = generate_error_ratio_dict(status_message, output_df, config_value_list)
+    output_data = generate_error_ratio_dict(status_message, output_df, config_dict['error_ratio_threshold'])
     process_time = get_process_time(start_time)
     output_dict = gen_output_format(output_data, process_time)
 

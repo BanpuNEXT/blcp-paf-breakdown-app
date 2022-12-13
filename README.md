@@ -81,11 +81,7 @@ Return series of raw input and error ratio along with config values.
                 "error_ratio": "float"
             },        
         ],
-        "config_value": [
-            {
-                "error_ratio_threshold": "float"
-            }
-        ]
+        "error_ratio_threshold": "float"
     }
 }
 ```
