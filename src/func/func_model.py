@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import datetime as dt
 from tensorflow import keras
-import json
 from flask import abort
 
 
@@ -55,28 +54,21 @@ def train_model(x, y, model, model_path, device_name, feature):
     return history
 
 
-def create_model_meta(error_threshold, model_path, device_name, feature):
+def create_model_meta(db, error_threshold, device_name, feature):
     '''
     Save error_threshold and training_timestamp as meta for the model.
     '''
-    with open(f'{model_path}/meta.json') as meta_file:
-        meta_dict = json.load(meta_file)
-    
-    timestamp_str = str(dt.datetime.now())
+    query = {
+            'name': f'{device_name}_{feature}'
+            }
 
-    if f'{device_name}_{feature}' not in meta_dict['model']:
-        meta_dict['model'][f'{device_name}_{feature}'] = {
-            'error_threshold': None,
-            'training_timestamp':None,
-            'detected_timestamp': None
+    new_values = {'$set': {
+        'error_threshold': error_threshold,
+        'training_timestamp':dt.datetime.now()
         }
+    }
 
-    meta_dict['model'][f'{device_name}_{feature}']['error_threshold'] = error_threshold
-    meta_dict['model'][f'{device_name}_{feature}']['training_timestamp'] = timestamp_str
-    meta_dict['model'][f'{device_name}_{feature}']['detected_timestamp'] = None
-
-    with open(f'{model_path}/meta.json', 'w') as meta_file:
-        json.dump(meta_dict, meta_file, indent=4)
+    db['meta'].update_one(query, new_values)
 
 
 def cal_loss(x_pred, x, error_direction):

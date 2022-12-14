@@ -1,18 +1,26 @@
 import pandas as pd
-import json
 from flask import abort
 
 
-def get_error_threshold(meta_dict, device_name, feature):
+def get_meta_data(db, device_name, feature, key):
     '''
-    Load the error_threshold from meta of the model to measure anomaly of a timestamp.
+    Load the error_threshold from model meta to measure anomaly of a timestamp.
     '''
-    try:
-        error_threshold = meta_dict['model'][f'{device_name}_{feature}']['error_threshold']
-    except KeyError:
-        abort(422, description=f"Not available meta data for {device_name}: {feature} model.")
+    query = {
+        'name': f'{device_name}_{feature}'
+        }
 
-    return error_threshold
+    cursor = db['meta'].find(
+        query, 
+        {
+            '_id': 0
+            }
+        )
+
+    data_list = list(cursor)
+    meta_value = data_list[0][key]
+
+    return meta_value
 
 
 def get_min_max_error_index(loss_df):
@@ -120,34 +128,55 @@ def get_cross_timestamp(detection_df):
 
     return cross_list
 
-
-def update_detected_timestamp(detection_df, model_path, device_name, feature, error_ratio_threshold):
+    
+def update_detected_timestamp(db, detection_df, device_name, feature, start_date, error_ratio_threshold):
     '''
     Update detected timestamp in model meta json.
     '''
-    with open(f'{model_path}/meta.json') as meta_file:
-        meta_dict = json.load(meta_file)
+    query = {
+        'name': f'{device_name}_{feature}'
+        }
 
     error_flag = get_error_flag(detection_df, error_ratio_threshold)
     
     if not error_flag:
-        meta_dict['model'][f'{device_name}_{feature}']['detected_timestamp'] = None
+        new_values = {'$set': {
+            'detected_timestamp': None
+            }
+        }
+
+        db['meta'].update_one(query, new_values)
+        
     else:
         cross_list = get_cross_timestamp(detection_df)
-
+        last_detected_timestamp = get_meta_data(db, device_name, feature, key='detected_timestamp')
+         
         if len(cross_list) > 0:
             # Record lastest cross as detected timestamp.
-            # If no cross, error occur during past detection. Use the timestamp on model meta json.
-            meta_dict['model'][f'{device_name}_{feature}']['detected_timestamp'] = str(cross_list[-1])
-            
-    with open(f'{model_path}/meta.json', 'w') as meta_file:
-        json.dump(meta_dict, meta_file, indent=4)
+            # If no cross, error occur during past detection. Use the timestamp on model meta.
+            new_values = {'$set': {
+                'detected_timestamp': cross_list[-1]
+                }
+            }
 
-    return meta_dict
+            db['meta'].update_one(query, new_values)
+        elif last_detected_timestamp == None:
+            # If no detected timestamp on meta, use first timestamp.
+            new_values = {'$set': {
+                'detected_timestamp': start_date
+                }
+            }
+
+            db['meta'].update_one(query, new_values)
 
 
-def get_status_message(meta_dict, device_name, feature):
-    detected_timestamp = meta_dict['model'][f'{device_name}_{feature}']['detected_timestamp']
+def get_status_message(db, device_name, feature):
+    detected_timestamp = get_meta_data(
+        db,
+        device_name,
+        feature,
+        key='detected_timestamp'
+        )
     
     if detected_timestamp == None:
         status_message = "normal"
@@ -157,15 +186,28 @@ def get_status_message(meta_dict, device_name, feature):
     return status_message, detected_timestamp
 
 
-def add_status_result(status_dict, meta_dict, device_name, device_id, feature):
+def transform_iso_date(dt_date):
+    '''
+    Transform date into str ISO format.
+    '''
+    iso_date = str(dt_date.strftime('%Y-%m-%dT%H:%M:%S.%f'))[:-3] + 'Z'
+
+    return iso_date
+
+
+def add_status_result(status_dict, db, device_name, device_id, feature):
     '''
     Add latest status of each feature of each device to status_dict in route predict_status.
     '''
-    status_message, detected_timestamp = get_status_message(meta_dict, device_name, feature)
+    status_message, detected_timestamp = get_status_message(db, device_name, feature)
 
     status_dict['deviceId'].append(str(device_id))
     status_dict['feature'].append(feature)
     status_dict['status'].append(status_message)
+
+    if detected_timestamp != None:
+        detected_timestamp = transform_iso_date(detected_timestamp)
+
     status_dict['detected_timestamp'].append(detected_timestamp)
 
     return status_dict
@@ -175,19 +217,19 @@ def clean_output(detection_df, input_df, feature):
     '''
     Clean the final output dataFrame to put in output_dict.
     '''
-    def transform_iso_date(df):
-        '''
-        Transform date into ISO format.
-        '''
-        df['publishTimestamp'] = df['publishTimestamp'].apply(lambda x: str(x.strftime('%Y-%m-%dT%H:%M:%S.%f')))
-        df['publishTimestamp'] = df['publishTimestamp'].apply(lambda x: x[:-3] + 'Z')
+    # def transform_iso_date(df):
+    #     '''
+    #     Transform date into ISO format.
+    #     '''
+    #     df['publishTimestamp'] = df['publishTimestamp'].apply(lambda x: str(x.strftime('%Y-%m-%dT%H:%M:%S.%f')))
+    #     df['publishTimestamp'] = df['publishTimestamp'].apply(lambda x: x[:-3] + 'Z')
 
-        return df
+    #     return df
 
     output_df = detection_df.merge(input_df.reset_index(), how='left', left_on='publishTimestamp', right_on='publishTimestamp')
     output_df = output_df.rename(columns={feature:'raw_data'})
     output_df = output_df[['publishTimestamp', 'raw_data', 'error_ratio']]
     output_df = output_df.fillna(0)
-    output_df = transform_iso_date(output_df)
+    output_df['publishTimestamp'] = output_df['publishTimestamp'].apply(lambda x: transform_iso_date(x))
 
     return output_df

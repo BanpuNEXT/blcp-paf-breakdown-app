@@ -28,17 +28,14 @@ app.config['MONGO_URI'] = secret_dict['mongo_url']
 app.config['JSON_SORT_KEYS'] = False
 
 
-def get_config_meta_dict():
+def get_config_dict():
     '''
     Get model configuation and model training meta.
     '''
     with open(f'{src_path}/train_model/config.json') as config_file:
         config_dict = json.load(config_file)
 
-    with open(f'{src_path}/model/meta.json') as meta_file:
-        meta_dict = json.load(meta_file)
-
-    return config_dict, meta_dict
+    return config_dict
 
 
 def get_db():
@@ -91,7 +88,7 @@ def generate_error_ratio_dict(status_message, detected_timestamp, output_df, err
     }
 
     if detected_timestamp != None:
-        output_data['detected_timestamp'] = detected_timestamp
+        output_data['detected_timestamp'] = func_result.transform_iso_date(detected_timestamp)
     
     output_data['error_ratio'] = output_df.to_dict('records')
     output_data['error_ratio_threshold'] = error_ratio_threshold
@@ -178,7 +175,7 @@ def health():
     print(start_date, end_date)
     
     query = func_data.get_query(device_id, start_date, end_date)
-    func_data.load_data(query, db)
+    func_data.load_data(db, query)
     
     process_time = get_process_time(start_time)
     
@@ -196,10 +193,10 @@ def health():
     return health_dict
 
 
-def predict(device_name, device_id, feature, start_date, end_date, config_dict, meta_dict, db):
+def predict(db, device_name, device_id, feature, start_date, end_date, config_dict):
     print("   GET input")
     query = func_data.get_query(device_id, start_date, end_date)
-    input_df = func_data.load_data(query, db)
+    input_df = func_data.load_data(db, query)
 
     print("   Clean data")
     input_df = func_data.clean_type(input_df)
@@ -226,7 +223,12 @@ def predict(device_name, device_id, feature, start_date, end_date, config_dict, 
     )
 
     predict_loss_df = func_model.get_reconstruct_loss(predict_loss, valid_timestamp)
-    error_threshold = func_result.get_error_threshold(meta_dict, device_name, feature)
+    error_threshold = func_result.get_meta_data(
+        db,
+        device_name,
+        feature,
+        key='error_threshold'
+        )
 
     print("   Detect breakdown")
     detection_df = func_result.get_detection_df(
@@ -238,15 +240,16 @@ def predict(device_name, device_id, feature, start_date, end_date, config_dict, 
         error_ratio_threshold=config_dict['error_ratio_threshold']
     )
 
-    meta_dict = func_result.update_detected_timestamp(
+    func_result.update_detected_timestamp(
+        db,
         detection_df,
-        model_path,
         device_name,
         feature,
+        start_date,
         error_ratio_threshold=config_dict['error_ratio_threshold']
         )
 
-    return input_df, detection_df, meta_dict
+    return input_df, detection_df
     
 
 @app.route('/predict/paf/status')
@@ -256,7 +259,7 @@ def predict_status():
     '''
     start_time = time.time()
     
-    config_dict, meta_dict = get_config_meta_dict()
+    config_dict = get_config_dict()
     db = get_db()
     status_dict = func_result.gen_status_dict()
     start_date, end_date = func_data.get_predict_date(db)
@@ -266,20 +269,19 @@ def predict_status():
             print(f"Device: {device_name}\nFeature: {feature}")
             device_id = func_data.get_device_id(device_name)
             
-            _, _, meta_dict = predict(
+            _, _ = predict(
+                db,
                 device_name,
                 device_id,
                 feature,
                 start_date,
                 end_date,
-                config_dict,
-                meta_dict,
-                db
+                config_dict
                 )
 
             status_dict = func_result.add_status_result(
                 status_dict,
-                meta_dict,
+                db,
                 device_name,
                 device_id,
                 feature
@@ -301,25 +303,24 @@ def predict_error_ratio():
     '''
     start_time = time.time()
     
-    config_dict, meta_dict = get_config_meta_dict()
+    config_dict = get_config_dict()
     db = get_db()
     device_id, feature = get_args()
     device_name = func_data.get_device_name(device_id)
     device_id = ObjectId(device_id)
     start_date, end_date = func_data.get_predict_date(db)
     
-    input_df, detection_df, _ = predict(
+    input_df, detection_df = predict(
+        db,
         device_name,
         device_id,
         feature,
         start_date,
         end_date,
         config_dict,
-        meta_dict,
-        db
         )
 
-    status_message, detected_timestamp = func_result.get_status_message(meta_dict, device_name, feature)
+    status_message, detected_timestamp = func_result.get_status_message(db, device_name, feature)
 
     print("   Generate final output\n")            
     output_df = func_result.clean_output(detection_df, input_df, feature)

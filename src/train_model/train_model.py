@@ -34,7 +34,7 @@ for device_name in config_dict['device_name']:
             )
 
         query = func_data.get_query(device_id, start_date, end_date)
-        input_df = func_data.load_data(query, db)
+        input_df = func_data.load_data(db, query)
 
         input_df = func_data.clean_type(input_df)
         input_df = func_data.add_additional_feature(input_df)
@@ -74,4 +74,4 @@ for device_name in config_dict['device_name']:
         
         training_loss_df = func_model.get_reconstruct_loss(training_loss, training_valid_timestamp)
         error_threshold = func_model.cal_error_threshold(training_loss_df)
-        func_model.create_model_meta(error_threshold, model_path, device_name, feature)
+        func_model.create_model_meta(db, error_threshold, device_name, feature)

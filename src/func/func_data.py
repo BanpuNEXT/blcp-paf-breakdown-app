@@ -77,7 +77,7 @@ def get_query(device_id, start_date, end_date):
     return query
 
 
-def load_data(query, db):
+def load_data(db, query):
     '''
     GET data from mongodb.
     '''
